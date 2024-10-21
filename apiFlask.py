@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import requests
 from bs4 import BeautifulSoup
 
@@ -34,13 +34,22 @@ def obtener_datos_google_sheets():
 
     return productos
 
-# Endpoint de la API
+# Endpoint de la API con búsqueda por nombre
 @app.route('/api/productos', methods=['GET'])
 def obtener_productos():
     productos = obtener_datos_google_sheets()
     if productos is None:
         return jsonify({'error': 'No se pudo obtener los datos'}), 500
 
+    # Obtener el parámetro de búsqueda (nombre) desde la URL
+    nombre_busqueda = request.args.get('nombre')
+
+    # Si se proporciona un nombre, filtrar los productos
+    if nombre_busqueda:
+        productos_filtrados = [p for p in productos if nombre_busqueda.lower() in p['nombre'].lower()]
+        return jsonify(productos_filtrados)
+
+    # Si no se proporciona un nombre, devolver todos los productos
     return jsonify(productos)
 
 if __name__ == '__main__':
