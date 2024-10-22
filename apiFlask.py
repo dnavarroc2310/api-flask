@@ -38,8 +38,15 @@ def obtener_datos_google_sheets():
 @app.route('/api/productos', methods=['GET'])
 def obtener_productos():
     productos = obtener_datos_google_sheets()
+    
+    # Verificar si se obtuvieron los datos correctamente
     if productos is None:
-        return jsonify({'result': 'error', 'message': 'No se pudo obtener los datos','data': []}), 500
+        return jsonify({
+            'result': 'error',
+            'message': 'No se pudo obtener los datos',
+            'data': [],
+            'count': 0
+        }), 500
 
     # Obtener el parámetro de búsqueda (nombre) desde la URL
     nombre_busqueda = request.args.get('nombre')
@@ -47,10 +54,15 @@ def obtener_productos():
     # Si se proporciona un nombre, filtrar los productos
     if nombre_busqueda:
         productos_filtrados = [p for p in productos if nombre_busqueda.lower() in p['nombre'].lower()]
-        return jsonify({'result': 'success', 'message': 'Productos encontrados','data': productos_filtrados}), 200
+    else:
+        productos_filtrados = productos
 
-    # Si no se proporciona un nombre, devolver todos los productos
-    return jsonify({'result': 'success', 'message': 'Todos los productos', 'data': productos}), 200
+    # Devolver la respuesta con los productos filtrados o todos los productos
+    return jsonify({
+        'result': 'success',
+        'data': productos_filtrados,
+        'count': len(productos_filtrados)
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
