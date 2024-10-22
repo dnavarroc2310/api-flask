@@ -39,7 +39,7 @@ def obtener_datos_google_sheets():
 def obtener_productos():
     productos = obtener_datos_google_sheets()
     if productos is None:
-        return jsonify({'error': 'No se pudo obtener los datos'}), 500
+        return jsonify({'result': 'error', 'message': 'No se pudo obtener los datos','data': []}), 500
 
     # Obtener el parámetro de búsqueda (nombre) desde la URL
     nombre_busqueda = request.args.get('nombre')
@@ -47,10 +47,10 @@ def obtener_productos():
     # Si se proporciona un nombre, filtrar los productos
     if nombre_busqueda:
         productos_filtrados = [p for p in productos if nombre_busqueda.lower() in p['nombre'].lower()]
-        return jsonify(productos_filtrados)
+        return jsonify({'result': 'success', 'message': 'Productos encontrados','data': productos_filtrados}), 200
 
     # Si no se proporciona un nombre, devolver todos los productos
-    return jsonify(productos)
+    return jsonify({'result': 'success', 'message': 'Todos los productos', 'data': productos}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
